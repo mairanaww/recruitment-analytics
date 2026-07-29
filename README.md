@@ -61,23 +61,23 @@ python src/export_excel.py
 ```
 Check the `reports/` folder for the formatted output.
 
-### 6. Run Tests
+### 6. Export BI Data for Power BI Online
+```bash
+python src/export_bi_csvs.py
+```
+This will extract the dimensional and fact tables (the Star Schema) into the `data/bi_export/` directory.
+
+### 7. Run Tests
 ```bash
 pytest tests/
 ```
 The test suite explicitly verifies the idempotent upsert logic (e.g. COUNT(*) does not change on rerun, but modified fields do update).
 
-## Power BI & Mac Environment Considerations
+## Power BI Integration
 
-Power BI Desktop is a Windows-only application. If you are on a Mac, you have a few options to build the `.pbix` dashboard:
+Because Power BI Desktop is a Windows-only application, this pipeline is designed to accommodate Mac users using **Power BI Online (Service)**. 
 
-1. **Parallels Desktop (Recommended):** Use the 14-day free trial with Windows 11. This is the smoothest experience.
-2. **UTM:** A free, open-source alternative. It can run Windows 11 ARM on Apple Silicon, though it requires slightly more setup.
-3. **Campus Lab Machine:** Many universities provide Windows lab machines. You can build the dashboard there and carry the `.pbix` file on a USB drive.
-
-**Crucial Networking Caveat:**
-If you run Power BI inside a VM (like Parallels) on your Mac, it needs to connect to the PostgreSQL database running on your Mac host. 
-- **Do NOT** use `localhost` in Power BI, as that will point to the VM itself.
-- **DO** use the IP address of your host machine. For Parallels, this is usually `10.211.55.2`. Point Power BI to `10.211.55.2:5432`.
-
-Connect Power BI to the `bi_fact_*` and `bi_dim_*` views to leverage the star schema for optimal cross-filtering and DAX measures.
+1. Run the `export_bi_csvs.py` script to generate flat CSV files of the optimized star schema views.
+2. Log into your Power BI Online account.
+3. Import the CSVs from the `data/bi_export/` folder into a new dataset.
+4. Define the relationships between the fact tables (`bi_fact_*`) and dimension tables (`bi_dim_*`) to build your dashboard.
